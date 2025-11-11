@@ -1,6 +1,5 @@
 import ctypes
 import logging
-from typing import Dict, Type
 
 from llvmlite import ir
 
@@ -51,7 +50,7 @@ def _make_repr(struct_name: str, fields: list):
     return __repr__
 
 
-def convert_structs_to_ctypes(structs_sym_tab) -> Dict[str, Type[ctypes.Structure]]:
+def convert_structs_to_ctypes(structs_sym_tab) -> dict[str, type[ctypes.Structure]]:
     """Convert PythonBPF's structs_sym_tab to ctypes.Structure classes."""
     if not structs_sym_tab:
         return {}
