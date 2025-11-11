@@ -1,29 +1,38 @@
 name: Pip
 
 on:
-  workflow_dispatch:
-  pull_request:
   push:
-    branches:
-      - master
-      - main
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
 
 jobs:
-  build:
+  test:
+    name: Test on Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        platform: [ubuntu-latest]
-        python-version: ["3.12", "3.13"]
-
-    runs-on: ${{ matrix.platform }}
+        python-version: ['3.12', '3.13']
 
     steps:
-    - uses: actions/checkout@v5
+    - name: Checkout code
+      uses: actions/checkout@v5
       with:
-        submodules: true
+        submodules: recursive
 
-    - uses: actions/setup-python@v6
+    - name: Verify submodules
+      run: |
+        echo "Checking submodule status:"
+        git submodule status
+        echo "Checking libbpf directory:"
+        ls -la libbpf/
+        echo "Checking libbpf/src:"
+        ls -la libbpf/src/ || echo "libbpf/src not found!"
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
 
@@ -33,19 +42,72 @@ jobs:
         sudo apt-get install -y \
           libbpf-dev \
           libelf-dev \
-          linux-headers-generic \
+          zlib1g-dev \
           build-essential \
+          clang \
           cmake \
-          ninja-build
+          ninja-build \
+          pkg-config \
+          git \
+          make
 
-    - name: Add requirements
-      run: python -m pip install --upgrade pip wheel setuptools
+    - name: Install Python build dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install --upgrade "setuptools>=77.0.0" wheel
+        pip install cmake ninja pybind11
 
-    - name: Build and install
-      run: pip install --verbose .[test]
+    - name: Check build requirements
+      run: |
+        echo "Python version:"
+        python --version
+        echo "CMake version:"
+        cmake --version
+        echo "Ninja version:"
+        ninja --version
+        echo "Setuptools version:"
+        python -c "import setuptools; print(setuptools.__version__)"
 
-    - name: Test import
-      run: python -I -c "import pylibbpf; print('Import successful')"
+    - name: Build and install pylibbpf (verbose)
+      run: |
+        pip install -v -e . 2>&1 | tee build.log
+      continue-on-error: false
 
-    - name: Test
-      run: python -I -m pytest -v
+    - name: Check build output
+      run: |
+        echo "Build directory contents:"
+        find build -type f -name "*.so" 2>/dev/null || echo "No .so files found in build/"
+        echo ""
+        echo "Looking for pylibbpf extension:"
+        find . -name "pylibbpf*.so" -o -name "pylibbpf*.pyd"
+        echo ""
+        echo "Site-packages contents:"
+        python -c "import site; print(site.getsitepackages())"
+        ls -la $(python -c "import site; print(site.getsitepackages()[0])")/pylibbpf/ || echo "pylibbpf not in site-packages"
+
+    - name: Try importing extension directly
+      run: |
+        python -c "
+        import sys
+        print('Python path:', sys.path)
+        try:
+            from pylibbpf import pylibbpf
+            print('Successfully imported pylibbpf.pylibbpf')
+            print('pylibbpf.pylibbpf members:', dir(pylibbpf))
+        except ImportError as e:
+            print(f'Failed to import pylibbpf.pylibbpf: {e}')
+        "
+
+    - name: Verify extension loaded
+      run: |
+        python -c "import pylibbpf; print('Members:', dir(pylibbpf)); assert hasattr(pylibbpf, 'BpfObject'), 'BpfObject not found!'; print('✓ OK')"
+
+    - name: Install test dependencies
+      if: success()
+      run: |
+        pip install pytest pytest-cov
+
+    - name: Run tests
+      if: success()
+      run: |
+        python -I -m pytest -v -s --cov=pylibbpf --cov-report=term-missing

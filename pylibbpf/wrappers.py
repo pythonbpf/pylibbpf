@@ -1,4 +1,4 @@
-from typing import Callable, Optional
+from collections.abc import Callable
 
 
 class PerfEventArrayHelper:
@@ -13,7 +13,7 @@ class PerfEventArrayHelper:
         callback: Callable,
         struct_name: str = "",
         page_cnt: int = 8,
-        lost_callback: Optional[Callable] = None,
+        lost_callback: Callable | None = None,
     ):
         """Open perf buffer with auto-deserialization."""
         from .pylibbpf import PerfEventArray

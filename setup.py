@@ -3,7 +3,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from setuptools import Extension, find_packages, setup
+from setuptools import Extension, setup
 from setuptools.command.build_ext import build_ext
 
 
@@ -116,5 +116,4 @@ if readme_path.exists():
 setup(
     ext_modules=[CMakeExtension("pylibbpf.pylibbpf")],
     cmdclass={"build_ext": CMakeBuild},
-    zip_safe=False,
 )

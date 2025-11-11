@@ -17,7 +17,7 @@ jobs:
     steps:
     - uses: actions/checkout@v5
       with:
-        submodules: true
+        submodules: recursive
 
     - name: Build SDist
       run: pipx run build --sdist
@@ -41,22 +41,24 @@ jobs:
     steps:
     - uses: actions/checkout@v5
       with:
-        submodules: true
+        submodules: recursive
 
     - name: Build wheels
       uses: pypa/cibuildwheel@v3.2
       env:
         CIBW_PLATFORM: linux
         CIBW_ARCHS_LINUX: ${{ matrix.arch }}
-        CIBW_BUILD: "cp311-*"
+        CIBW_BUILD: "cp312-* cp313-*"
         CIBW_SKIP: "*-musllinux*"
-        CIBW_TEST_COMMAND: "python -c 'import pylibbpf; print(f\"pylibbpf {pylibbpf.__version__} imported successfully\")'"
+        CIBW_TEST_COMMAND: "python -c 'import pylibbpf; assert hasattr(pylibbpf, \"BpfObject\"), \"BpfObject not found\"; print(f\"pylibbpf {pylibbpf.__version__} OK\")'"
         CIBW_TEST_SKIP: "*-linux_aarch64"
 
         CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
 
         CIBW_BEFORE_ALL_LINUX: |
-          dnf install -y elfutils-libelf-devel zlib-devel
+          dnf install -y elfutils-libelf-devel zlib-devel make gcc gcc-c++ git
+        CIBW_BEFORE_BUILD: >
+          pip install --upgrade "setuptools>=77.0.0" wheel cmake ninja pybind11
 
     - name: Verify clean directory
       run: git diff --exit-code
