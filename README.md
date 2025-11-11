@@ -11,7 +11,7 @@
 </picture>
 <p align="center">
   <!-- PyPI -->
-  <a href="https://www.python.org/downloads/release/python-3080/"><img src="https://img.shields.io/badge/python-3.8-blue.svg"></a>
+  <a href="https://www.python.org/downloads/release/python-3120/"><img src="https://img.shields.io/badge/python-3.12-blue.svg"></a>
   <a href="https://pypi.org/project/pylibbpf"><img src="https://badge.fury.io/py/pylibbpf.svg"></a>
   <!-- <a href="https://pypi.org/project/pythonbpf/"><img src="https://img.shields.io/pypi/status/pythonbpf" alt="PyPI Status"></a> -->
   <a href="https://pepy.tech/project/pylibbpf"><img src="https://pepy.tech/badge/pylibbpf" alt="Downloads"></a>
