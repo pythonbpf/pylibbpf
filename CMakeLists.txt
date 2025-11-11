@@ -5,6 +5,8 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+find_package(Python COMPONENTS Interpreter Development.Module REQUIRED)
+
 # pybind11
 include_directories(${CMAKE_SOURCE_DIR}/src)
 add_subdirectory(pybind11)
