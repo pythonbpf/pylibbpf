@@ -6,14 +6,6 @@ from pathlib import Path
 from setuptools import Extension, find_packages, setup
 from setuptools.command.build_ext import build_ext
 
-# Convert distutils Windows platform specifiers to CMake -A arguments
-PLAT_TO_CMAKE = {
-    "win32": "Win32",
-    "win-amd64": "x64",
-    "win-arm32": "ARM",
-    "win-arm64": "ARM64",
-}
-
 
 # A CMakeExtension needs a sourcedir instead of a file list.
 # The name must be the _single_ output extension from the CMake build.
@@ -45,8 +37,8 @@ class CMakeBuild(build_ext):
         # from Python.
         cmake_args = [
             f"-DCMAKE_LIBRARY_OUTPUT_DIRECTORY={extdir}{os.sep}",
-            f"-DPYTHON_EXECUTABLE={sys.executable}",
             f"-DCMAKE_BUILD_TYPE={cfg}",  # not used on MSVC, but no harm
+            f"-DPython_EXECUTABLE={sys.executable}",
         ]
         build_args = []
 
@@ -122,44 +114,7 @@ if readme_path.exists():
     long_description = readme_path.read_text(encoding="utf-8")
 
 setup(
-    name="pylibbpf",
-    version="0.0.1",
-    author="varun-r-mallya, r41k0u",
-    author_email="varunrmallyagmail.com",
-    description="Python Bindings for Libbpf",
-    long_description=long_description,
-    long_description_content_type="text/markdown",
-    url="https://github.com/pythonbpf/pylibbpf",
-    packages=find_packages(where="."),
-    package_dir={"": "."},
-    py_modules=[],  # Empty since we use packages
     ext_modules=[CMakeExtension("pylibbpf.pylibbpf")],
     cmdclass={"build_ext": CMakeBuild},
     zip_safe=False,
-    classifiers=[
-        "Development Status :: 3 - Alpha",
-        "Intended Audience :: Developers",
-        "Operating System :: POSIX :: Linux",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: 3.10",
-        "Programming Language :: Python :: 3.11",
-        "Programming Language :: Python :: 3.12",
-        "Programming Language :: C++",
-        "Topic :: Software Development :: Libraries :: Python Modules",
-        "Topic :: System :: Operating System Kernels :: Linux",
-    ],
-    install_requires=[
-        "llvmlite>=0.40.0",  # Required for struct conversion
-    ],
-    extras_require={"test": ["pytest>=6.0"]},
-    python_requires=">=3.8",
-    package_data={
-        "pylibbpf": [
-            "*.py",
-            "py.typed",  # For type hints
-        ],
-    },
-    include_package_data=True,
 )
