@@ -83,4 +83,4 @@ extend-select = [
 
 [tool.setuptools]
 packages = ["pylibbpf"]
-package-data = {"pylibbpf" = ["*.py", "py.typed"]}
+package-data = {"pylibbpf" = ["*.py", "*.so", "*.pyd", "py.typed"]}
