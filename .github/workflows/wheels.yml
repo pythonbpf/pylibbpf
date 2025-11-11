@@ -48,7 +48,7 @@ jobs:
       env:
         CIBW_PLATFORM: linux
         CIBW_ARCHS_LINUX: ${{ matrix.arch }}
-        CIBW_BUILD: "cp38-* cp311-*"
+        CIBW_BUILD: "cp311-*"
         CIBW_SKIP: "*-musllinux*"
         CIBW_TEST_COMMAND: "python -c 'import pylibbpf; print(f\"pylibbpf {pylibbpf.__version__} imported successfully\")'"
         CIBW_TEST_SKIP: "*-linux_aarch64"
