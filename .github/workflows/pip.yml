@@ -48,4 +48,4 @@ jobs:
       run: python -I -c "import pylibbpf; print('Import successful')"
 
     - name: Test
-      run: python -I -m pytest -v
+      run: python -m pytest -v
