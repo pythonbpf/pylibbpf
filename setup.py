@@ -116,5 +116,4 @@ if readme_path.exists():
 setup(
     ext_modules=[CMakeExtension("pylibbpf.pylibbpf")],
     cmdclass={"build_ext": CMakeBuild},
-    zip_safe=False,
 )

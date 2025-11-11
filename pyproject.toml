@@ -80,3 +80,7 @@ extend-select = [
     "RUF", # Ruff-specific
     "UP", # pyupgrade
 ]
+
+[tool.setuptools]
+packages = ["pylibbpf"]
+package-data = {"pylibbpf" = ["*.py", "py.typed"]}
