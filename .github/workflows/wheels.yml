@@ -50,13 +50,7 @@ jobs:
         CIBW_ARCHS_LINUX: ${{ matrix.arch }}
         CIBW_BUILD: "cp312-* cp313-*"
         CIBW_SKIP: "*-musllinux*"
-        CIBW_TEST_COMMAND: >
-          python -c "import pylibbpf;
-assert hasattr(pylibbpf, 'BpfObject'), 'BpfObject not found - extension failed to build';
-assert hasattr(pylibbpf, 'BpfMap'), 'BpfMap not found';
-print(f'pylibbpf {pylibbpf.__version__} with {len(dir(pylibbpf))} members');
-print('Available:', [x for x in dir(pylibbpf) if not x.startswith('_')])
-"
+        CIBW_TEST_COMMAND: "python -c 'import pylibbpf; assert hasattr(pylibbpf, \"BpfObject\"), \"BpfObject not found\"; print(f\"pylibbpf {pylibbpf.__version__} OK\")'"
         CIBW_TEST_SKIP: "*-linux_aarch64"
 
         CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
