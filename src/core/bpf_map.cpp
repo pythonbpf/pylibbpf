@@ -42,7 +42,7 @@ py::object BpfMap::lookup(const py::object &key) const {
                                        value_span.data(), value_size_, BPF_ANY);
   if (ret < 0) {
     if (ret == -ENOENT)
-      throw py::key_error("Key not found in map '" + map_name_ + "'");
+      return py::none();
     throw BpfException("Failed to lookup key in map '" + map_name_ +
                        "': " + std::strerror(-ret));
   }
