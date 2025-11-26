@@ -65,6 +65,10 @@ PYBIND11_MODULE(pylibbpf, m) {
       .def("get_key_size", &BpfMap::get_key_size)
       .def("get_value_size", &BpfMap::get_value_size)
       .def("get_max_entries", &BpfMap::get_max_entries)
+      .def("set_value_struct", &BpfMap::set_value_struct,
+           py::arg("struct_name"))
+      .def("get_value_struct_name", &BpfMap::get_value_struct_name)
+      .def("has_struct_value", &BpfMap::has_struct_value)
       .def("__getitem__", &BpfMap::lookup, py::arg("key"))
       .def("__setitem__", &BpfMap::update, py::arg("key"), py::arg("value"))
       .def("__delitem__", &BpfMap::delete_elem, py::arg("key"));

@@ -25,6 +25,24 @@ BpfMap::BpfMap(std::shared_ptr<BpfObject> parent, struct bpf_map *raw_map,
   value_size_ = bpf_map__value_size(map_);
 }
 
+void BpfMap::set_value_struct(const std::string &struct_name) {
+  auto parent = parent_obj_.lock();
+  if (!parent) {
+    throw BpfException("Parent BpfObject no longer exists");
+  }
+
+  struct_parser_ = parent->get_struct_parser();
+  if (!struct_parser_) {
+    throw BpfException("No struct definitions available in BpfObject");
+  }
+
+  if (!struct_parser_->has_struct(struct_name)) {
+    throw BpfException("Unknown struct: " + struct_name);
+  }
+
+  value_struct_name_ = struct_name;
+}
+
 py::object BpfMap::lookup(const py::object &key) const {
   if (map_fd_ < 0)
     throw BpfException("Map '" + map_name_ + "' is not initialized properly");
@@ -216,6 +234,12 @@ void BpfMap::python_to_bytes_inplace(const py::object &obj,
 }
 
 py::object BpfMap::bytes_to_python(std::span<const uint8_t> data) {
+  //  NOTE: Struct parsing for value type
+  if (struct_parser_ && !value_struct_name_.empty()) {
+    py::bytes py_data(reinterpret_cast<const char *>(data.data()), data.size());
+    return struct_parser_->parse(value_struct_name_, py_data);
+  }
+
   if (data.size() == 4) {
     uint32_t value;
     std::memcpy(&value, data.data(), 4);
