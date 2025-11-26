@@ -1,6 +1,7 @@
 #include "core/bpf_map.h"
 #include "core/bpf_exception.h"
 #include "core/bpf_object.h"
+#include "utils/struct_parser.h"
 #include <algorithm>
 #include <cerrno>
 #include <cstring>
@@ -233,7 +234,7 @@ void BpfMap::python_to_bytes_inplace(const py::object &obj,
   }
 }
 
-py::object BpfMap::bytes_to_python(std::span<const uint8_t> data) {
+py::object BpfMap::bytes_to_python(std::span<const uint8_t> data) const {
   //  NOTE: Struct parsing for value type
   if (struct_parser_ && !value_struct_name_.empty()) {
     py::bytes py_data(reinterpret_cast<const char *>(data.data()), data.size());

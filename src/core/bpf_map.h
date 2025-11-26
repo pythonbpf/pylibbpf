@@ -79,7 +79,7 @@ public:
 private:
   static void python_to_bytes_inplace(const py::object &obj,
                                       std::span<uint8_t> buffer);
-  static py::object bytes_to_python(std::span<const uint8_t> data);
+  py::object bytes_to_python(std::span<const uint8_t> data) const;
 };
 
 #endif // PYLIBBPF_BPF_MAP_H
