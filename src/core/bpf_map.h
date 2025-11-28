@@ -9,6 +9,7 @@
 #include <vector>
 
 class BpfObject;
+class StructParser;
 
 namespace py = pybind11;
 
@@ -19,6 +20,11 @@ private:
   int map_fd_;
   std::string map_name_;
   __u32 key_size_, value_size_;
+
+  //  TODO: For now, we'll only support struct parsing for value types
+  // later we can extend this to keys
+  std::shared_ptr<StructParser> struct_parser_;
+  std::string value_struct_name_;
 
   template <size_t StackSize = 64> struct BufferManager {
     std::array<uint8_t, StackSize> stack_buf;
@@ -52,6 +58,7 @@ public:
   py::dict items() const;
   py::list keys() const;
   py::list values() const;
+  void set_value_struct(const std::string &struct_name);
 
   [[nodiscard]] std::string get_name() const { return map_name_; }
   [[nodiscard]] int get_fd() const { return map_fd_; }
@@ -62,11 +69,17 @@ public:
   [[nodiscard]] std::shared_ptr<BpfObject> get_parent() const {
     return parent_obj_.lock();
   }
+  [[nodiscard]] std::string get_value_struct_name() const {
+    return value_struct_name_;
+  }
+  [[nodiscard]] bool has_struct_value() const {
+    return !value_struct_name_.empty();
+  }
 
 private:
   static void python_to_bytes_inplace(const py::object &obj,
                                       std::span<uint8_t> buffer);
-  static py::object bytes_to_python(std::span<const uint8_t> data);
+  py::object bytes_to_python(std::span<const uint8_t> data) const;
 };
 
 #endif // PYLIBBPF_BPF_MAP_H
